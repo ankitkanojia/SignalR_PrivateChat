@@ -11,19 +11,21 @@ namespace SignarRChat
 {
     public class ChatHub : Hub
     {
-        public void Send(string name, string message)
+        public void Send(string name, string message, string userImageUrl)
         {
             // Call the addNewMessageToPage method to update clients.
-            Clients.All.addNewMessageToPage(name, message);
+            Clients.All.addNewMessageToPage(name, message, userImageUrl);
         }
 
         public override Task OnConnected()
         {
             var UserName = Context.QueryString["UserName"];
+            var ProfileImage = Context.QueryString["ProfileImage"];
             var UserId = Context.ConnectionId;
             StaticValues.ConnectionDetails.Add(new ChatVm {
                 UserId = UserId,
-                UserName = UserName
+                UserName = UserName,
+                ProfileImage = ProfileImage
             });
             return base.OnConnected();
         }

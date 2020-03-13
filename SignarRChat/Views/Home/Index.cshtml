@@ -24,15 +24,16 @@
 <div class="content">
     <div class="messages">
         <input type="hidden" id="displayname" />
+        <input type="hidden" id="displayUrl" />
         <ul id="discussion">
             @*<li class="sent">
-                    <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
-                    <p>What are you talking about? You do what they say or they shoot you.</p>
-                </li>
-                <li class="replies">
-                    <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-                    <p>Wrong. You take the gun, or you pull out a bigger one. Or, you call their bluff. Or, you do any one of a hundred and forty six other things.</p>
-                </li>*@
+                <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
+                <p>What are you talking about? You do what they say or they shoot you.</p>
+            </li>
+            <li class="replies">
+                <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
+                <p>Wrong. You take the gun, or you pull out a bigger one. Or, you call their bluff. Or, you do any one of a hundred and forty six other things.</p>
+            </li>*@
         </ul>
     </div>
     <div class="message-input">
@@ -59,6 +60,10 @@
 
         $(function () {
 
+            $.get('https://randomuser.me/api/', function (data) {
+                $("#displayUrl").val(data.results[0].picture.thumbnail);
+            });
+
             setInterval(GetConnections, 3000);
 
             $(".messages").animate({ scrollTop: $(document).height() }, "fast");
@@ -67,13 +72,15 @@
             var chat = $.connection.chatHub;
 
             // Create a function that the hub can call back to display messages.
-            chat.client.addNewMessageToPage = function (name, message) {
+            chat.client.addNewMessageToPage = function (name, message, userImageUrl) {
                 if ($('#displayname').val().toLowerCase().trim() === name.toLowerCase().trim()) {
-                    $('<li class="replies"><span>' + name +'</span><p>' + htmlEncode(message) + '</p></li>').appendTo($('.messages ul'));
+                    console.log($("#displayUrl").val());
+                    var imageURL = $("#displayUrl").val();
+                    $('<li class="replies"><span><img src="' + imageURL +'" alt="' + name +'" /></span><p>' + htmlEncode(message) + '</p></li>').appendTo($('.messages ul'));
                     $('.contact.active .preview').html('<span>You: </span>' + message);
                     $(".messages").animate({ scrollTop: $(document).height() }, "fast");
                 } else {
-                    $('<li class="sent"><span>' + name +'</span><p>' + message + '</p></li>').appendTo($('.messages ul'));
+                    $('<li class="sent"><span><img src="' + userImageUrl + '" alt="' + name +'" /></span><p>' + message + '</p></li>').appendTo($('.messages ul'));
                     $('.contact.active .preview').html('<span>You: </span>' + message);
                     $(".messages").animate({ scrollTop: $(document).height() }, "fast");
                 }
@@ -87,7 +94,8 @@
             var person = prompt('Enter your name:', '');
 
             if (person != null) {
-                $.connection.hub.qs = { 'UserName': person };
+                var profileImage = $("#displayUrl").val();
+                $.connection.hub.qs = { 'UserName': person, 'ProfileImage': profileImage};
                 $('#displayname').val(person);
 
                 // Set initial focus to message input box.
@@ -100,7 +108,7 @@
                             return false;
                         } else {
                             // Call the Send method on the hub.
-                            chat.server.send($('#displayname').val(), message);
+                            chat.server.send($('#displayname').val(), message, $('#displayUrl').val());
                             // Clear text box and reset focus for next comment.
                             $('#message').val('').focus();
                         }
@@ -115,24 +123,13 @@
             return encodedValue;
         }
 
-        var imagesList = ["http://emilcarlsson.se/assets/louislitt.png",
-            "http://emilcarlsson.se/assets/harveyspecter.png",
-            "http://emilcarlsson.se/assets/rachelzane.png",
-            "http://emilcarlsson.se/assets/donnapaulsen.png",
-            "http://emilcarlsson.se/assets/jessicapearson.png",
-            "http://emilcarlsson.se/assets/haroldgunderson.png",
-            "http://emilcarlsson.se/assets/danielhardman.png",
-            "http://emilcarlsson.se/assets/katrinabennett.png",
-            "http://emilcarlsson.se/assets/charlesforstman.png",
-            "http://emilcarlsson.se/assets/jonathansidwell.png"];
-
         function GetConnections(){
             $.get('@Url.Action("GetConnections","Home")', function (data) {
                 if (data.ConnectionDetails && data.ConnectionDetails.length > 0) {
                     $("#onlineUsers").html('');
                     $.each(data.ConnectionDetails, function (e, element) {
                         if ($('#displayname').val().toLowerCase().trim() !== element.UserName.toLowerCase().trim()) {
-                            $("#onlineUsers").append('<li class="contact"><div class="wrap"><span class="contact-status online"></span><img src="' + imagesList[e] + '" alt="" /><div class="meta"><p class="name">' + element.UserName + '</p></div></div></li>');
+                            $("#onlineUsers").append('<li class="contact"><div class="wrap"><span class="contact-status online"></span><img src="' + element.ProfileImage + '" alt="' + element.UserName + '" /><div class="meta"><p class="name">' + element.UserName + '</p></div></div></li>');
                         }
                     });
                 }
