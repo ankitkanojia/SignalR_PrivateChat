@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
@@ -48,6 +49,12 @@ namespace SignarRChat
 
             if(foundUser != null)
             {
+                var directoryPath =  HttpContext.Current.Server.MapPath("~/ProfileImage");
+                var imagePath = Path.Combine(directoryPath, foundUser.ProfileImage);
+                if (System.IO.File.Exists(imagePath))
+                {
+                    System.IO.File.Delete(imagePath);
+                }
                 StaticValues.ConnectionDetails.Remove(foundUser);
             }
             return base.OnDisconnected(stopCalled);

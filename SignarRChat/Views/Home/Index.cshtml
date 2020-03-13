@@ -51,6 +51,41 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-sm">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Submit Your Details</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUser">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label for="Name" style="margin-bottom:10px">Your Name</label>
+                                <input type="text" class="form-control" id="frmName" placeholder="Enter Name" required>
+                            </div>
+                            <br />
+                            <div class="form-group">
+                                <label for="image" style="margin-bottom:10px">Choose Profile Image</label>
+                                <input type='file' id="profileImage" name="profileImage" required />
+                            </div>
+                        </div>
+                        <div class="col-lg-6 text-center">
+                            <img height="150" width="150" id="blah" src="https://i.stack.imgur.com/l60Hf.png" alt="Default Image" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button onclick="submitDetails()" type="button" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts{
 
@@ -72,30 +107,83 @@
             }, 2000);
         }
 
+        function submitDetails() {
+            var formdata = new FormData($('form').get(0));
+             $.ajax({
+                 url: '@Url.Action("SubmitDetails", "Home")',
+                 type: 'POST',
+                 data: formdata,
+                 cache: false,
+                 processData: false,
+                 contentType: false,
+                 success: function (data) {
+                     if (data.success) {
+                         $("#myModal").modal("hide");
+                         $("#displayUrl").val(data.profileImage);
+                         $("#profileUrl").attr("src", "/ProfileImage/" + data.profileImage);
+                         setConnection($("#frmName").val().trim());
+                     }
+                 },
+                error: function () {
+                    alert('Error occured');
+                }
+             });
+        }
+
+        function setConnection(person) {
+            var profileImage = $("#displayUrl").val();
+            $.connection.hub.qs = { 'UserName': person, 'ProfileImage': profileImage };
+            $('#displayname').val(person);
+            $('#profileName').text("Welcome " + person);
+
+            // Set initial focus to message input box.
+            $('#message').focus();
+            // Start the connection.
+            $.connection.hub.start().done(function () {
+                $('#sendmessage').click(function () {
+                    var message = $("#message").val();
+                    if ($.trim(message) == '') {
+                        return false;
+                    } else {
+                        // Call the Send method on the hub.
+                        chat.server.send($('#displayname').val(), message, $('#displayUrl').val());
+                        // Clear text box and reset focus for next comment.
+                        $('#message').val('').focus();
+                    }
+                });
+            });
+
+            $("#frmUser")[0].reset();
+        }
+
+        var chat;
+
         $(function () {
 
-            $.get('https://randomuser.me/api/', function (data) {
-                $("#displayUrl").val(data.results[0].picture.thumbnail);
-                $("#profileUrl").attr("src", data.results[0].picture.thumbnail);
+            $("#myModal").modal({
+                backdrop: "static",
+                keyboard: false
             });
+
+            $("#myModal").modal("show");
 
             setInterval(GetConnections, 3000);
 
             $(".messages").animate({ scrollTop: $(document).height() }, "fast");
 
             // Reference the auto-generated proxy for the hub.
-            var chat = $.connection.chatHub;
+            chat = $.connection.chatHub;
 
             // Create a function that the hub can call back to display messages.
             chat.client.addNewMessageToPage = function (name, message, userImageUrl) {
                 if ($('#displayname').val().toLowerCase().trim() === name.toLowerCase().trim()) {
                     console.log($("#displayUrl").val());
                     var imageURL = $("#displayUrl").val();
-                    $('<li class="replies"><span><img src="' + imageURL +'" alt="' + name +'" /></span><p>' + htmlEncode(message) + '</p></li>').appendTo($('.messages ul'));
+                    $('<li class="replies"><span><img src="/ProfileImage/' + imageURL +'" alt="' + name +'" /></span><p>' + htmlEncode(message) + '</p></li>').appendTo($('.messages ul'));
                     $('.contact.active .preview').html('<span>You: </span>' + message);
                     $(".messages").animate({ scrollTop: $(document).height() }, "fast");
                 } else {
-                    $('<li class="sent"><span><img src="' + userImageUrl + '" alt="' + name +'" /></span><p>' + message + '</p></li>').appendTo($('.messages ul'));
+                    $('<li class="sent"><span><img src="/ProfileImage/' + userImageUrl + '" alt="' + name +'" /></span><p>' + message + '</p></li>').appendTo($('.messages ul'));
                     $('.contact.active .preview').html('<span>You: </span>' + message);
                     $(".messages").animate({ scrollTop: $(document).height() }, "fast");
                 }
@@ -106,31 +194,31 @@
             };
 
             // Get the user name and store it to prepend to messages.
-            var person = prompt('Enter your name:', '');
+            //var person = prompt('Enter your name:', '');
 
-            if (person != null) {
-                var profileImage = $("#displayUrl").val();
-                $.connection.hub.qs = { 'UserName': person, 'ProfileImage': profileImage};
-                $('#displayname').val(person);
-                $('#profileName').text("Welcome " + person);
+            //if (person != null) {
+            //    var profileImage = $("#displayUrl").val();
+            //    $.connection.hub.qs = { 'UserName': person, 'ProfileImage': profileImage};
+            //    $('#displayname').val(person);
+            //    $('#profileName').text("Welcome " + person);
 
-                // Set initial focus to message input box.
-                $('#message').focus();
-                // Start the connection.
-                $.connection.hub.start().done(function () {
-                    $('#sendmessage').click(function () {
-                        var message = $("#message").val();
-                        if ($.trim(message) == '') {
-                            return false;
-                        } else {
-                            // Call the Send method on the hub.
-                            chat.server.send($('#displayname').val(), message, $('#displayUrl').val());
-                            // Clear text box and reset focus for next comment.
-                            $('#message').val('').focus();
-                        }
-                    });
-                });
-            }
+            //    // Set initial focus to message input box.
+            //    $('#message').focus();
+            //    // Start the connection.
+            //    $.connection.hub.start().done(function () {
+            //        $('#sendmessage').click(function () {
+            //            var message = $("#message").val();
+            //            if ($.trim(message) == '') {
+            //                return false;
+            //            } else {
+            //                // Call the Send method on the hub.
+            //                chat.server.send($('#displayname').val(), message, $('#displayUrl').val());
+            //                // Clear text box and reset focus for next comment.
+            //                $('#message').val('').focus();
+            //            }
+            //        });
+            //    });
+            //}
         });
 
         // This optional function html-encodes messages for display in the page.
@@ -145,11 +233,28 @@
                     $("#onlineUsers").html('');
                     $.each(data.ConnectionDetails, function (e, element) {
                         if ($('#displayname').val().toLowerCase().trim() !== element.UserName.toLowerCase().trim()) {
-                            $("#onlineUsers").append('<li class="contact"><div class="wrap"><span class="contact-status online"></span><img src="' + element.ProfileImage + '" alt="' + element.UserName + '" /><div class="meta"><p class="name">' + element.UserName + '</p></div></div></li>');
+                            $("#onlineUsers").append('<li class="contact"><div class="wrap"><span class="contact-status online"></span><img src="/ProfileImage/' + element.ProfileImage + '" alt="' + element.UserName + '" /><div class="meta"><p class="name">' + element.UserName + '</p></div></div></li>');
                         }
                     });
                 }
             });
         }
+    </script>
+    <script>
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#blah').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $("#profileImage").change(function () {
+            readURL(this);
+        });
     </script>
 }
