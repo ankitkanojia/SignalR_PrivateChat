@@ -69,11 +69,11 @@
             // Create a function that the hub can call back to display messages.
             chat.client.addNewMessageToPage = function (name, message) {
                 if ($('#displayname').val().toLowerCase().trim() === name.toLowerCase().trim()) {
-                    $('<li class="replies"><img src="http://emilcarlsson.se/assets/mikeross.png" alt="" /><p>' + htmlEncode(message) + '</p></li>').appendTo($('.messages ul'));
+                    $('<li class="replies"><span>' + name +'</span><p>' + htmlEncode(message) + '</p></li>').appendTo($('.messages ul'));
                     $('.contact.active .preview').html('<span>You: </span>' + message);
                     $(".messages").animate({ scrollTop: $(document).height() }, "fast");
                 } else {
-                    $('<li class="sent"><img src="http://emilcarlsson.se/assets/mikeross.png" alt="" /><p>' + message + '</p></li>').appendTo($('.messages ul'));
+                    $('<li class="sent"><span>' + name +'</span><p>' + message + '</p></li>').appendTo($('.messages ul'));
                     $('.contact.active .preview').html('<span>You: </span>' + message);
                     $(".messages").animate({ scrollTop: $(document).height() }, "fast");
                 }
