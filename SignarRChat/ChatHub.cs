@@ -49,12 +49,7 @@ namespace SignarRChat
 
             if(foundUser != null)
             {
-                var directoryPath =  HttpContext.Current.Server.MapPath("~/ProfileImage");
-                var imagePath = Path.Combine(directoryPath, foundUser.ProfileImage);
-                if (System.IO.File.Exists(imagePath))
-                {
-                    System.IO.File.Delete(imagePath);
-                }
+                StaticValues.TrashImage(foundUser);
                 StaticValues.ConnectionDetails.Remove(foundUser);
             }
             return base.OnDisconnected(stopCalled);

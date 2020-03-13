@@ -152,6 +152,7 @@
     </Compile>
     <Compile Include="Helpers\StaticValues.cs" />
     <Compile Include="Models\ChatVm.cs" />
+    <Compile Include="ProfileImage\Class1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -194,7 +195,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="ProfileImage\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />

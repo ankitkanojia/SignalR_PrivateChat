@@ -23,7 +23,7 @@
 
 <div class="content">
     <div class="contact-profile">
-        <img id="profileUrl" src="" alt="">
+        <img height="40" width="40" id="profileUrl" src="" alt="">
         <p id="profileName"></p>
         <div class="social-media">
             <i onclick="Disconnect()" class="fa fa-sign-out" aria-hidden="true"></i>
@@ -179,11 +179,11 @@
                 if ($('#displayname').val().toLowerCase().trim() === name.toLowerCase().trim()) {
                     console.log($("#displayUrl").val());
                     var imageURL = $("#displayUrl").val();
-                    $('<li class="replies"><span><img src="/ProfileImage/' + imageURL +'" alt="' + name +'" /></span><p>' + htmlEncode(message) + '</p></li>').appendTo($('.messages ul'));
+                    $('<li class="replies"><span><img  height="22" width="22" src="/ProfileImage/' + imageURL +'" alt="' + name +'" /></span><p>' + htmlEncode(message) + '</p></li>').appendTo($('.messages ul'));
                     $('.contact.active .preview').html('<span>You: </span>' + message);
                     $(".messages").animate({ scrollTop: $(document).height() }, "fast");
                 } else {
-                    $('<li class="sent"><span><img src="/ProfileImage/' + userImageUrl + '" alt="' + name +'" /></span><p>' + message + '</p></li>').appendTo($('.messages ul'));
+                    $('<li class="sent"><span><img height="22" width="22" src="/ProfileImage/' + userImageUrl + '" alt="' + name +'" /></span><p>' + message + '</p></li>').appendTo($('.messages ul'));
                     $('.contact.active .preview').html('<span>You: </span>' + message);
                     $(".messages").animate({ scrollTop: $(document).height() }, "fast");
                 }
@@ -233,7 +233,7 @@
                     $("#onlineUsers").html('');
                     $.each(data.ConnectionDetails, function (e, element) {
                         if ($('#displayname').val().toLowerCase().trim() !== element.UserName.toLowerCase().trim()) {
-                            $("#onlineUsers").append('<li class="contact"><div class="wrap"><span class="contact-status online"></span><img src="/ProfileImage/' + element.ProfileImage + '" alt="' + element.UserName + '" /><div class="meta"><p class="name">' + element.UserName + '</p></div></div></li>');
+                            $("#onlineUsers").append('<li class="contact"><div class="wrap"><span class="contact-status online"></span><img  height="40" width="40" src="/ProfileImage/' + element.ProfileImage + '" alt="' + element.UserName + '" /><div class="meta"><p class="name">' + element.UserName + '</p></div></div></li>');
                         }
                     });
                 }
