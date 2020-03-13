@@ -22,18 +22,22 @@
 </div>
 
 <div class="content">
+    <div class="contact-profile">
+        <img id="profileUrl" src="" alt="">
+        <p id="profileName"></p>
+    </div>
     <div class="messages">
         <input type="hidden" id="displayname" />
         <input type="hidden" id="displayUrl" />
         <ul id="discussion">
             @*<li class="sent">
-                <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
-                <p>What are you talking about? You do what they say or they shoot you.</p>
-            </li>
-            <li class="replies">
-                <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-                <p>Wrong. You take the gun, or you pull out a bigger one. Or, you call their bluff. Or, you do any one of a hundred and forty six other things.</p>
-            </li>*@
+                    <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
+                    <p>What are you talking about? You do what they say or they shoot you.</p>
+                </li>
+                <li class="replies">
+                    <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
+                    <p>Wrong. You take the gun, or you pull out a bigger one. Or, you call their bluff. Or, you do any one of a hundred and forty six other things.</p>
+                </li>*@
         </ul>
     </div>
     <div class="message-input">
@@ -62,6 +66,7 @@
 
             $.get('https://randomuser.me/api/', function (data) {
                 $("#displayUrl").val(data.results[0].picture.thumbnail);
+                $("#profileUrl").attr("src", data.results[0].picture.thumbnail);
             });
 
             setInterval(GetConnections, 3000);
@@ -97,6 +102,7 @@
                 var profileImage = $("#displayUrl").val();
                 $.connection.hub.qs = { 'UserName': person, 'ProfileImage': profileImage};
                 $('#displayname').val(person);
+                $('#profileName').text("Welcome " + person);
 
                 // Set initial focus to message input box.
                 $('#message').focus();
