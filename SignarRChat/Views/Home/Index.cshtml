@@ -25,6 +25,9 @@
     <div class="contact-profile">
         <img id="profileUrl" src="" alt="">
         <p id="profileName"></p>
+        <div class="social-media">
+            <i onclick="Disconnect()" class="fa fa-sign-out" aria-hidden="true"></i>
+        </div>
     </div>
     <div class="messages">
         <input type="hidden" id="displayname" />
@@ -61,6 +64,13 @@
                 return false;
             }
         });
+
+        function Disconnect() {
+            $.connection.hub.stop();
+            setTimeout(function () {
+                location.reload();
+            }, 2000);
+        }
 
         $(function () {
 
