@@ -4,96 +4,15 @@
 
 <div id="sidepanel">
     <div id="contacts">
-        <ul>
+        <ul id="onlineUsers">
             <li class="contact">
-                <div class="wrap">
-                    <span class="contact-status online"></span>
-                    <img src="http://emilcarlsson.se/assets/louislitt.png" alt="" />
-                    <div class="meta">
-                        <p class="name">Louis Litt</p>
-                    </div>
-                </div>
-            </li>
-            <li class="contact">
-                <div class="wrap">
-                    <span class="contact-status busy"></span>
-                    <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-                    <div class="meta">
-                        <p class="name">Harvey Specter</p>
-                    </div>
-                </div>
-            </li>
-            <li class="contact">
-                <div class="wrap">
-                    <span class="contact-status away"></span>
-                    <img src="http://emilcarlsson.se/assets/rachelzane.png" alt="" />
-                    <div class="meta">
-                        <p class="name">Rachel Zane</p>
-                    </div>
-                </div>
-            </li>
-            <li class="contact">
-                <div class="wrap">
-                    <span class="contact-status online"></span>
-                    <img src="http://emilcarlsson.se/assets/donnapaulsen.png" alt="" />
-                    <div class="meta">
-                        <p class="name">Donna Paulsen</p>
-                    </div>
-                </div>
-            </li>
-            <li class="contact">
-                <div class="wrap">
-                    <span class="contact-status busy"></span>
-                    <img src="http://emilcarlsson.se/assets/jessicapearson.png" alt="" />
-                    <div class="meta">
-                        <p class="name">Jessica Pearson</p>
-                    </div>
-                </div>
-            </li>
-            <li class="contact">
-                <div class="wrap">
-                    <span class="contact-status"></span>
-                    <img src="http://emilcarlsson.se/assets/haroldgunderson.png" alt="" />
-                    <div class="meta">
-                        <p class="name">Harold Gunderson</p>
-                    </div>
-                </div>
-            </li>
-            <li class="contact">
-                <div class="wrap">
-                    <span class="contact-status"></span>
-                    <img src="http://emilcarlsson.se/assets/danielhardman.png" alt="" />
-                    <div class="meta">
-                        <p class="name">Daniel Hardman</p>
-                    </div>
-                </div>
-            </li>
-            <li class="contact">
-                <div class="wrap">
-                    <span class="contact-status busy"></span>
-                    <img src="http://emilcarlsson.se/assets/katrinabennett.png" alt="" />
-                    <div class="meta">
-                        <p class="name">Katrina Bennett</p>
-                    </div>
-                </div>
-            </li>
-            <li class="contact">
-                <div class="wrap">
-                    <span class="contact-status"></span>
-                    <img src="http://emilcarlsson.se/assets/charlesforstman.png" alt="" />
-                    <div class="meta">
-                        <p class="name">Charles Forstman</p>
-                    </div>
-                </div>
-            </li>
-            <li class="contact">
-                <div class="wrap">
-                    <span class="contact-status"></span>
-                    <img src="http://emilcarlsson.se/assets/jonathansidwell.png" alt="" />
-                    <div class="meta">
-                        <p class="name">Jonathan Sidwell</p>
-                    </div>
-                </div>
+                @*<div class="wrap">
+                        <span class="contact-status online"></span>
+                        <img src="http://emilcarlsson.se/assets/louislitt.png" alt="" />
+                        <div class="meta">
+                            <p class="name">Louis Litt</p>
+                        </div>
+                    </div>*@
             </li>
         </ul>
     </div>
@@ -139,6 +58,9 @@
         });
 
         $(function () {
+
+            setInterval(GetConnections, 3000);
+
             $(".messages").animate({ scrollTop: $(document).height() }, "fast");
 
             // Reference the auto-generated proxy for the hub.
@@ -155,7 +77,7 @@
             var person = prompt('Enter your name:', '');
 
             if (person != null) {
-                $.connection.hub.qs = { 'UserId': person };
+                $.connection.hub.qs = { 'UserName': person };
                 $('#displayname').val(person);
 
                 // Set initial focus to message input box.
@@ -187,6 +109,30 @@
         function htmlEncode(value) {
             var encodedValue = $('<div />').text(value).html();
             return encodedValue;
+        }
+
+        var imagesList = ["http://emilcarlsson.se/assets/louislitt.png",
+            "http://emilcarlsson.se/assets/harveyspecter.png",
+            "http://emilcarlsson.se/assets/rachelzane.png",
+            "http://emilcarlsson.se/assets/donnapaulsen.png",
+            "http://emilcarlsson.se/assets/jessicapearson.png",
+            "http://emilcarlsson.se/assets/haroldgunderson.png",
+            "http://emilcarlsson.se/assets/danielhardman.png",
+            "http://emilcarlsson.se/assets/katrinabennett.png",
+            "http://emilcarlsson.se/assets/charlesforstman.png",
+            "http://emilcarlsson.se/assets/jonathansidwell.png"];
+
+        function GetConnections(){
+            $.get('@Url.Action("GetConnections","Home")', function (data) {
+                if (data.ConnectionDetails && data.ConnectionDetails.length > 0) {
+                    $("#onlineUsers").html('');
+                    $.each(data.ConnectionDetails, function (e, element) {
+                        if ($('#displayname').val().toLowerCase().trim() !== element.UserName.toLowerCase().trim()) {
+                            $("#onlineUsers").append('<li class="contact"><div class="wrap"><span class="contact-status online"></span><img src="' + imagesList[e] + '" alt="" /><div class="meta"><p class="name">' + element.UserName + '</p></div></div></li>');
+                        }
+                    });
+                }
+            });
         }
     </script>
 }

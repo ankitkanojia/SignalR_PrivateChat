@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web;
 using Microsoft.AspNet.SignalR;
+using SignarRChat.Helpers;
+using SignarRChat.Models;
 
 namespace SignarRChat
 {
@@ -17,7 +19,12 @@ namespace SignarRChat
 
         public override Task OnConnected()
         {
-            string name = Context.QueryString["UserId"];
+            var UserName = Context.QueryString["UserName"];
+            var UserId = Context.ConnectionId;
+            StaticValues.ConnectionDetails.Add(new ChatVm {
+                UserId = UserId,
+                UserName = UserName
+            });
             return base.OnConnected();
         }
     }

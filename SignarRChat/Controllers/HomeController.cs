@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SignarRChat.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -11,6 +12,11 @@ namespace SignarRChat.Controllers
         public ActionResult Index()
         {
             return View();
+        }
+
+        public JsonResult GetConnections()
+        {
+            return Json(new { StaticValues.ConnectionDetails }, JsonRequestBehavior.AllowGet );
         }
     }
 }
