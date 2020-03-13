@@ -29,5 +29,28 @@ namespace SignarRChat
             });
             return base.OnConnected();
         }
+
+        public override Task OnDisconnected(bool stopCalled)
+        {
+            var UserId = Context.ConnectionId;
+            var foundUser = StaticValues.ConnectionDetails.FirstOrDefault(m => m.UserId.ToLower().Trim() == UserId.ToLower().Trim());
+            if (stopCalled)
+            {
+                // We know that Stop() was called on the client,
+                // and the connection shut down gracefully.
+            }
+            else
+            {
+                // This server hasn't heard from the client in the last ~35 seconds.
+                // If SignalR is behind a load balancer with scaleout configured, 
+                // the client may still be connected to another SignalR server.
+            }
+
+            if(foundUser != null)
+            {
+                StaticValues.ConnectionDetails.Remove(foundUser);
+            }
+            return base.OnDisconnected(stopCalled);
+        }
     }
 }
