@@ -66,12 +66,12 @@
                         <div class="col-lg-6">
                             <div class="form-group">
                                 <label for="Name" style="margin-bottom:10px">Your Name</label>
-                                <input type="text" class="form-control" id="frmName" placeholder="Enter Name" required>
+                                <input name="frmName" type="text" class="form-control" id="frmName" placeholder="Enter Name" required>
                             </div>
                             <br />
                             <div class="form-group">
                                 <label for="image" style="margin-bottom:10px">Choose Profile Image</label>
-                                <input type='file' id="profileImage" name="profileImage" required />
+                                <input accept="image/*" type='file' id="profileImage" name="profileImage" required />
                             </div>
                         </div>
                         <div class="col-lg-6 text-center">
@@ -108,56 +108,71 @@
         }
 
         function submitDetails() {
-            var formdata = new FormData($('form').get(0));
-             $.ajax({
-                 url: '@Url.Action("SubmitDetails", "Home")',
-                 type: 'POST',
-                 data: formdata,
-                 cache: false,
-                 processData: false,
-                 contentType: false,
-                 success: function (data) {
-                     if (data.success) {
-                         $("#myModal").modal("hide");
-                         $("#displayUrl").val(data.profileImage);
-                         $("#profileUrl").attr("src", "/ProfileImage/" + data.profileImage);
-                         setConnection($("#frmName").val().trim());
-                     }
-                 },
-                error: function () {
-                    alert('Error occured');
-                }
-             });
+            if ($('#frmUser').valid()) {
+                var formdata = new FormData($('form').get(0));
+                $.ajax({
+                    url: '@Url.Action("SubmitDetails", "Home")',
+                    type: 'POST',
+                    data: formdata,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        if (data.success) {
+                            $("#myModal").modal("hide");
+                            $("#displayUrl").val(data.profileImage);
+                            $("#profileUrl").attr("src", "/ProfileImage/" + data.profileImage);
+                            setConnection($("#frmName").val().trim());
+                        }
+                    },
+                    error: function () {
+                        alert('Error occured');
+                    }
+                });
+            }
         }
 
         function setConnection(person) {
-            var profileImage = $("#displayUrl").val();
-            $.connection.hub.qs = { 'UserName': person, 'ProfileImage': profileImage };
-            $('#displayname').val(person);
-            $('#profileName').text("Welcome " + person);
+            if ($("#displayUrl").val().length !== 0 && person.length !== 0) {
+                var profileImage = $("#displayUrl").val();
+                $.connection.hub.qs = { 'UserName': person, 'ProfileImage': profileImage };
+                $('#displayname').val(person);
+                $('#profileName').text("Welcome " + person);
 
-            // Set initial focus to message input box.
-            $('#message').focus();
-            // Start the connection.
-            $.connection.hub.start().done(function () {
-                $('#sendmessage').click(function () {
-                    var message = $("#message").val();
-                    if ($.trim(message) == '') {
-                        return false;
-                    } else {
-                        // Call the Send method on the hub.
-                        chat.server.send($('#displayname').val(), message, $('#displayUrl').val());
-                        // Clear text box and reset focus for next comment.
-                        $('#message').val('').focus();
-                    }
+                // Set initial focus to message input box.
+                $('#message').focus();
+                // Start the connection.
+                $.connection.hub.start().done(function () {
+                    $('#sendmessage').click(function () {
+                        var message = $("#message").val();
+                        if ($.trim(message) == '') {
+                            return false;
+                        } else {
+                            // Call the Send method on the hub.
+                            chat.server.send($('#displayname').val(), message, $('#displayUrl').val());
+                            // Clear text box and reset focus for next comment.
+                            $('#message').val('').focus();
+                        }
+                    });
                 });
-            });
 
-            $("#frmUser")[0].reset();
+                $("#frmUser")[0].reset();
+            }
         }
 
         var chat;
         $(function () {
+
+            $('#frmUser').validate({
+                rules: {
+                    frmName: {
+                        required: true
+                    },
+                    profileImage: {
+                        required: true
+                    }
+                }
+            });
 
             $("#myModal").modal({
                 backdrop: "static",
