@@ -13,6 +13,13 @@
     -webkit-font-smoothing: antialiased;
 }
 
+label.error {
+    font-size: 12px;
+    color: red;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
 #frame {
     width: 95%;
     min-width: 360px;
