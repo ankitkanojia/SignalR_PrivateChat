@@ -7,3 +7,6 @@ SignalR in ASP.NET lets your server-side code push content to connected clients,
 
 
 <p align="center"><img src="https://i.stack.imgur.com/qAlCO.jpg"  alt="SignalR Diagram" /></p>
+
+
+<p align="center"><img src="https://raw.githubusercontent.com/ankitkanojia/SignalRChat/master/SignalR.gif" /></p>
