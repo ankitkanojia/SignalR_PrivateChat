@@ -15,29 +15,24 @@ namespace SignarRChat.Controllers
             return View();
         }
 
-        public ActionResult SingleChat()
-        {
-            return View();
-        }
-
         [HttpPost]
-        public JsonResult SubmitDetails(HttpPostedFileBase profileImage)
+        public ActionResult Index(int userid, string username)
         {
-            if(profileImage != null)
+            Session["UserName"] = username;
+            Session["UserId"] = userid;
+            return RedirectToAction("Chat");
+        }
+        
+        public ActionResult Chat()
+        {
+            if (Session["UserName"] != null && Session["UserId"] != null)
             {
-                var directoryPath = Server.MapPath("~/ProfileImage");
-                if (!Directory.Exists(directoryPath))
-                {
-                    Directory.CreateDirectory(directoryPath);
-                }
-
-                var fileGuid = Guid.NewGuid();
-                var filename = string.Concat(fileGuid, Path.GetExtension(profileImage.FileName));
-                var savePath = Path.Combine(directoryPath, filename);
-                profileImage.SaveAs(savePath);
-                return Json(new { success = true , profileImage = filename }, JsonRequestBehavior.AllowGet);
+                return View();
             }
-            return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+            else
+            {
+                return RedirectToAction("Index");
+            }
         }
 
         public JsonResult GetConnections()

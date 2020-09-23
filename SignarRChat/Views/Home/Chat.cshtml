@@ -1,0 +1,45 @@
+﻿@{
+    ViewBag.Title = "Chat";
+    Layout = null;
+    var userName = string.Empty;
+    var userId = string.Empty;
+
+    if (Session["UserName"] != null && Session["UserId"] != null)
+    {
+        userName = Session["UserName"].ToString();
+        userId = Session["UserId"].ToString();
+    }
+}
+
+<link href="~/Styles/bootstrap.css" rel="stylesheet" />
+<link href="~/Styles/jquery.ui.chatbox.css" rel="stylesheet" />
+<link href="~/Styles/style.css" rel="stylesheet" />
+<link href="~/fonts/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+<link href="~/Scripts/jquery/jquery-ui/jquery-ui.css" rel="stylesheet" />
+<link href="~/Styles/jquery.ui.chatbox.css" rel="stylesheet" />
+<script src="~/Scripts/jquery-3.3.1.js"></script>
+<script src="~/Scripts/jquery/jquery-ui/jquery-ui.js" type="text/javascript"></script>
+<script src="~/Scripts/bootstrap.min.js"></script>
+
+<div id="chat_widnow">
+    <div id="chat_title_bar">
+        <span class="col-sm-9 text-primary"><strong>Online Users</strong></span>
+        <div id="chat_min_button"><i class="fa fa-plus-square"></i></div>
+    </div>
+    <div id="chat_box" style="display: none;overflow-y:auto;">
+    </div>
+</div>
+
+<div id="chat_div"></div>
+<input id="hdId" type="hidden" />
+<input id="hdUserName" type="hidden" />
+<input ID="hdnCurrentUserName" type="hidden" value="@userName" />
+<input ID="hdnCurrentUserID" type="hidden" value="@userId" />
+
+<script type="text/javascript">
+    var srp = '/';
+</script>
+<script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+<script src="~/signalr/hubs"></script>
+<script src="~/Scripts/jquery.ui.chatbox.js"></script>
+<script src="~/Scripts/chatboxManager.min.js"></script>

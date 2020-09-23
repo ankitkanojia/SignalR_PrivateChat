@@ -1,274 +1,46 @@
 ﻿@{
     ViewBag.Title = "Chat";
+    Layout = "~/Views/Shared/_Layout2.cshtml";
 }
 
-<div id="sidepanel">
-    <div id="contacts">
-        <ul id="onlineUsers">
-            <li class="contact">
-                @*<div class="wrap">
-                        <span class="contact-status online"></span>
-                        <img src="http://emilcarlsson.se/assets/louislitt.png" alt="" />
-                        <div class="meta">
-                            <p class="name">Louis Litt</p>
-                        </div>
-                    </div>*@
-            </li>
-        </ul>
-    </div>
-    <div id="bottom-bar">
-        <button id="addcontact"><i class="fa fa-users fa-fw" aria-hidden="true"></i> <span>Online User(s)</span></button>
-    </div>
-</div>
+<div class="container">
+    <div class="row">
+        <div class="col-md-4 col-md-offset-4">
+            <div class="login-panel panel panel-default">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Please Sign In</h3>
+                </div>
+                <div class="panel-body">
+                    <div role="form">
 
-<div class="content">
-    <div class="contact-profile">
-        <img height="40" width="40" id="profileUrl" src="" alt="">
-        <p id="profileName"></p>
-        <div class="social-media">
-            <i onclick="Disconnect()" class="fa fa-sign-out" aria-hidden="true"></i>
-        </div>
-    </div>
-    <div class="messages">
-        <input type="hidden" id="displayname" />
-        <input type="hidden" id="displayUrl" />
-        <ul id="discussion">
-            @*<li class="sent">
-                    <img src="http://emilcarlsson.se/assets/mikeross.png" alt="" />
-                    <p>What are you talking about? You do what they say or they shoot you.</p>
-                </li>
-                <li class="replies">
-                    <img src="http://emilcarlsson.se/assets/harveyspecter.png" alt="" />
-                    <p>Wrong. You take the gun, or you pull out a bigger one. Or, you call their bluff. Or, you do any one of a hundred and forty six other things.</p>
-                </li>*@
-        </ul>
-    </div>
-    <div class="message-input">
-        <div class="wrap">
-            <input id="message" type="text" placeholder="Write your message..." />
-            <button class="submit" type="button" id="sendmessage" value="Send"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
-        </div>
-    </div>
-</div>
-
-<!-- Modal -->
-<div id="myModal" class="modal fade" role="dialog">
-    <div class="modal-dialog  modal-sm">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Submit Your Details</h4>
-            </div>
-            <div class="modal-body">
-                <form id="frmUser">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label for="Name" style="margin-bottom:10px">Your Name</label>
-                                <input name="frmName" type="text" class="form-control" id="frmName" placeholder="Enter Name" required>
+                        <form id="frmSingleChat" method="post">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="form-group">
+                                        <input id="username" name="username" type="hidden" />
+                                        <select id="userid" name="userid" class="form-control">
+                                            <option Value="0">Please Select</option>
+                                            <option Value="1">Shivam</option>
+                                            <option Value="1">Steeve</option>
+                                            <option Value="2">Edward</option>
+                                            <option Value="4">Richard</option>
+                                            <option Value="5">Phill</option>
+                                            <option Value="6">Rayan</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
-                            <br />
-                            <div class="form-group">
-                                <label for="image" style="margin-bottom:10px">Choose Profile Image</label>
-                                <input accept="image/*" type='file' id="profileImage" name="profileImage" required />
-                            </div>
-                        </div>
-                        <div class="col-lg-6 text-center">
-                            <img height="150" width="150" id="blah" src="https://i.stack.imgur.com/l60Hf.png" alt="Default Image" />
-                        </div>
+                            <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>
+
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button onclick="submitDetails()" type="button" class="btn btn-primary">Submit</button>
+                </div>
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts{
-
-    <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
-    <script src="~/signalr/hubs"></script>
-    <script>
-
-        $(window).on('keydown', function (e) {
-            if (e.which == 13) {
-                $('#sendmessage').click();
-                return false;
-            }
-        });
-
-        function Disconnect() {
-            $.connection.hub.stop();
-            setTimeout(function () {
-                location.reload();
-            }, 2000);
-        }
-
-        function submitDetails() {
-            if ($('#frmUser').valid()) {
-                var formdata = new FormData($('form').get(0));
-                $.ajax({
-                    url: '@Url.Action("SubmitDetails", "Home")',
-                    type: 'POST',
-                    data: formdata,
-                    cache: false,
-                    processData: false,
-                    contentType: false,
-                    success: function (data) {
-                        if (data.success) {
-                            $("#myModal").modal("hide");
-                            $("#displayUrl").val(data.profileImage);
-                            $("#profileUrl").attr("src", "/ProfileImage/" + data.profileImage);
-                            setConnection($("#frmName").val().trim());
-                        }
-                    },
-                    error: function () {
-                        alert('Error occured');
-                    }
-                });
-            }
-        }
-
-        function setConnection(person) {
-            if ($("#displayUrl").val().length !== 0 && person.length !== 0) {
-                var profileImage = $("#displayUrl").val();
-                $.connection.hub.qs = { 'UserName': person, 'ProfileImage': profileImage };
-                $('#displayname').val(person);
-                $('#profileName').text("Welcome " + person);
-
-                // Set initial focus to message input box.
-                $('#message').focus();
-                // Start the connection.
-                $.connection.hub.start().done(function () {
-                    $('#sendmessage').click(function () {
-                        var message = $("#message").val();
-                        if ($.trim(message) == '') {
-                            return false;
-                        } else {
-                            // Call the Send method on the hub.
-                            chat.server.send($('#displayname').val(), message, $('#displayUrl').val());
-                            // Clear text box and reset focus for next comment.
-                            $('#message').val('').focus();
-                        }
-                    });
-                });
-
-                $("#frmUser")[0].reset();
-            }
-        }
-
-        var chat;
-        $(function () {
-
-            $('#frmUser').validate({
-                rules: {
-                    frmName: {
-                        required: true
-                    },
-                    profileImage: {
-                        required: true
-                    }
-                }
-            });
-
-            $("#myModal").modal({
-                backdrop: "static",
-                keyboard: false
-            });
-
-            $("#myModal").modal("show");
-
-            setInterval(GetConnections, 3000);
-
-            $(".messages").animate({ scrollTop: $(document).height() }, "fast");
-
-            // Reference the auto-generated proxy for the hub.
-            chat = $.connection.chatHub;
-
-            // Create a function that the hub can call back to display messages.
-            chat.client.addNewMessageToPage = function (name, message, userImageUrl) {
-                if ($('#displayname').val().toLowerCase().trim() === name.toLowerCase().trim()) {
-                    console.log($("#displayUrl").val());
-                    var imageURL = $("#displayUrl").val();
-                    $('<li class="replies"><span><img  height="22" width="22" src="/ProfileImage/' + imageURL +'" alt="' + name +'" /></span><p>' + htmlEncode(message) + '</p></li>').appendTo($('.messages ul'));
-                    $('.contact.active .preview').html('<span>You: </span>' + message);
-                    $(".messages").animate({ scrollTop: $(document).height() }, "fast");
-                } else {
-                    $('<li class="sent"><span><img height="22" width="22" src="/ProfileImage/' + userImageUrl + '" alt="' + name +'" /></span><p>' + message + '</p></li>').appendTo($('.messages ul'));
-                    $('.contact.active .preview').html('<span>You: </span>' + message);
-                    $(".messages").animate({ scrollTop: $(document).height() }, "fast");
-                }
-
-                //// Add the message to the page.
-                //$('#discussion').append('<li><strong>' + htmlEncode(name)
-                //    + '</strong>: ' + htmlEncode(message) + '</li>');
-            };
-
-            // Get the user name and store it to prepend to messages.
-            //var person = prompt('Enter your name:', '');
-
-            //if (person != null) {
-            //    var profileImage = $("#displayUrl").val();
-            //    $.connection.hub.qs = { 'UserName': person, 'ProfileImage': profileImage};
-            //    $('#displayname').val(person);
-            //    $('#profileName').text("Welcome " + person);
-
-            //    // Set initial focus to message input box.
-            //    $('#message').focus();
-            //    // Start the connection.
-            //    $.connection.hub.start().done(function () {
-            //        $('#sendmessage').click(function () {
-            //            var message = $("#message").val();
-            //            if ($.trim(message) == '') {
-            //                return false;
-            //            } else {
-            //                // Call the Send method on the hub.
-            //                chat.server.send($('#displayname').val(), message, $('#displayUrl').val());
-            //                // Clear text box and reset focus for next comment.
-            //                $('#message').val('').focus();
-            //            }
-            //        });
-            //    });
-            //}
-        });
-
-        // This optional function html-encodes messages for display in the page.
-        function htmlEncode(value) {
-            var encodedValue = $('<div />').text(value).html();
-            return encodedValue;
-        }
-
-        function GetConnections(){
-            $.get('@Url.Action("GetConnections","Home")', function (data) {
-                if (data.ConnectionDetails && data.ConnectionDetails.length > 0) {
-                    $("#onlineUsers").html('');
-                    $.each(data.ConnectionDetails, function (e, element) {
-                        if ($('#displayname').val().toLowerCase().trim() !== element.UserName.toLowerCase().trim()) {
-                            $("#onlineUsers").append('<li class="contact"><div class="wrap"><span class="contact-status online"></span><img  height="40" width="40" src="/ProfileImage/' + element.ProfileImage + '" alt="' + element.UserName + '" /><div class="meta"><p class="name">' + element.UserName + '</p></div></div></li>');
-                        }
-                    });
-                }
-            });
-        }
-    </script>
-    <script>
-        function readURL(input) {
-            if (input.files && input.files[0]) {
-                var reader = new FileReader();
-
-                reader.onload = function (e) {
-                    $('#blah').attr('src', e.target.result);
-                }
-
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        $("#profileImage").change(function () {
-            readURL(this);
-        });
-    </script>
-}
+<script>
+    $("#userid").change(function () {
+        $("#username").val($("#userid option:selected").text());
+    });
+</script>
