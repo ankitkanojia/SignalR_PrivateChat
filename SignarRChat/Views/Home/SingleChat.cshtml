@@ -1,0 +1,178 @@
+﻿@{
+    ViewBag.Title = "Chat";
+}
+
+<style>
+    #frame .content {
+        width: 100% !important;
+    }
+
+        #frame .content .messages ul li {
+            margin: 5px;
+        }
+</style>
+
+<div class="content">
+    <div class="contact-profile">
+        <img height="40" width="40" alt="groupname" src="~/ProfileImage/groupIcon.jpg">
+        <p>Whatsapp Group</p>
+        <div class="social-media">
+            <i id="diconnected" class="fa fa-sign-out" aria-hidden="true"></i>
+        </div>
+    </div>
+    <div class="messages">
+        <input type="hidden" id="displayname" />
+        <ul id="discussion">
+        </ul>
+    </div>
+    <div class="message-input">
+        <div class="wrap">
+            <input id="message" type="text" placeholder="Write your message..." />
+            <button class="submit" type="button" id="sendmessage" value="Send"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog  modal-sm">
+
+        Modal content
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Submit Your Details</h4>
+            </div>
+            <div class="modal-body">
+                <form id="frmUser">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label for="Name" style="margin-bottom:10px">Your Name</label>
+                                <input name="frmName" type="text" class="form-control" id="frmName" placeholder="Enter Name" required>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button onclick="submitDetails()" type="button" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+
+    <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+    <script>
+
+        $(window).on('keydown', function (e) {
+            if (e.which == 13) {
+                $('#sendmessage').click();
+                return false;
+            }
+        });
+
+        function Disconnect() {
+            $.connection.hub.stop();
+            setTimeout(function () {
+                location.reload();
+            }, 2000);
+        }
+
+        function submitDetails() {
+            if ($('#frmUser').valid()) {
+                $("#myModal").modal("hide");
+                setConnection($("#frmName").val().trim());
+            }
+        }
+
+        function setConnection(person) {
+            if (person.length !== 0) {
+                $.connection.hub.qs = { 'UserName': person };
+                $('#displayname').val(person);
+
+                // Set initial focus to message input box.
+                $('#message').focus();
+                // Start the connection.
+
+
+                $.connection.hub.start().done(function () {
+
+                    console.log("user connected");
+
+                    chat.server.send(person, person + " is connected.", true);
+
+                    $('#sendmessage').click(function () {
+                        console.log("user send message"); 
+
+                        var message = $("#message").val();
+                        if ($.trim(message) == '') {
+                            return false;
+                        } else {
+                            // Call the Send method on the hub.
+                            chat.server.send($('#displayname').val(), message, false);
+                            // Clear text box and reset focus for next comment.
+                            $('#message').val('').focus();
+                        }
+                    });
+
+                    $('#diconnected').click(function () {
+                        console.log("user diconnected");
+                        chat.server.send(person, person + " is dis-connected.", true);
+                        Disconnect();
+                    });
+                });
+
+                $("#frmUser")[0].reset();
+            }
+        }
+
+        var chat;
+        $(function () {
+
+            $('#frmUser').validate({
+                rules: {
+                    frmName: {
+                        required: true
+                    }
+                }
+            });
+
+            $("#myModal").modal({
+                backdrop: "static",
+                keyboard: false
+            });
+
+            $("#myModal").modal("show");
+
+            //setInterval(GetConnections, 3000);
+
+            $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+
+            // Reference the auto-generated proxy for the hub.
+            chat = $.connection.chatHub;
+
+            // Create a function that the hub can call back to display messages.
+            chat.client.addNewMessageToPage = function (name, message, isConnected) {
+                if (isConnected) {
+                    $('<li class="text-center"><p>' + htmlEncode(message) + '</p></li>').appendTo($('.messages ul'));
+                    $('.contact.active .preview').html('<span>You: </span>' + message);
+                    $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+                } else {
+                    $('<li><span><b>' + name + ':</b> ' + htmlEncode(message) + '</span></li>').appendTo($('.messages ul'));
+                    $('.contact.active .preview').html('<span>You: </span>' + message);
+                    $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+                }
+            };
+        });
+
+        // This optional function html-encodes messages for display in the page.
+        function htmlEncode(value) {
+            var encodedValue = $('<div />').text(value).html();
+            return encodedValue;
+        }
+
+    </script>
+}

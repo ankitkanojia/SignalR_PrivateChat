@@ -15,6 +15,11 @@ namespace SignarRChat.Controllers
             return View();
         }
 
+        public ActionResult SingleChat()
+        {
+            return View();
+        }
+
         [HttpPost]
         public JsonResult SubmitDetails(HttpPostedFileBase profileImage)
         {

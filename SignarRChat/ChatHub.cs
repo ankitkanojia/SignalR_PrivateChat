@@ -12,10 +12,10 @@ namespace SignarRChat
 {
     public class ChatHub : Hub
     {
-        public void Send(string name, string message, string userImageUrl)
+        public void Send(string name, string message,bool isConnected)
         {
             // Call the addNewMessageToPage method to update clients.
-            Clients.All.addNewMessageToPage(name, message, userImageUrl);
+            Clients.All.addNewMessageToPage(name, message, isConnected);
         }
 
         public override Task OnConnected()
@@ -49,7 +49,7 @@ namespace SignarRChat
 
             if(foundUser != null)
             {
-                StaticValues.TrashImage(foundUser);
+                //StaticValues.TrashImage(foundUser);
                 StaticValues.ConnectionDetails.Remove(foundUser);
             }
             return base.OnDisconnected(stopCalled);
