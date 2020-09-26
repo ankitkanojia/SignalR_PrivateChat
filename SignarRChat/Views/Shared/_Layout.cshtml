@@ -3,19 +3,20 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SignalR Chat - Ankit Kanojia</title>
+    <title>@ViewBag.Title</title>
+
     <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
-    <link href="~/Content/reset.min.css" rel="stylesheet" />
-    <link href="~/Content/font-awesome.min.css" rel="stylesheet" />
-    <link href="~/Content/Site.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.4.0/css/all.min.css" integrity="sha512-eBNnVs5xPOVglLWDGXyZnZZ2K2ixXhR/3aECgCpFnW2dGCd/yiqXZ6fcB3BubeA91kM6NX234b6Wrah8RiYAPA==" crossorigin="anonymous" />
+    <link rel='stylesheet' href='~/Content/css/style.css'>
 </head>
 <body>
-    <div id="frame">
-        @RenderBody()
-    </div>
-    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+
+    @RenderBody()
+
+    <script src="~/Scripts/jquery-3.5.1.min.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
-    <script src="~/Scripts/jquery.validate.min.js"></script>
+
     @RenderSection("scripts", required: false)
 </body>
 </html>

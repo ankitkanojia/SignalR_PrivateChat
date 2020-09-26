@@ -1,45 +1,312 @@
-﻿@{
-    ViewBag.Title = "Chat";
-    Layout = null;
-    var userName = string.Empty;
-    var userId = string.Empty;
-
-    if (Session["UserName"] != null && Session["UserId"] != null)
-    {
-        userName = Session["UserName"].ToString();
-        userId = Session["UserId"].ToString();
-    }
+﻿@using SignarRChat.Helpers
+@using SignarRChat.Models
+@{
+    ViewBag.Title = "Home Page";
+    var user = (ContactVm)Session["UserDetails"];
+    var contacts = CommonFunctions.GetContacts().Where(s => s.ContactId != user.ContactId).ToList();
 }
 
-<link href="~/Styles/bootstrap.css" rel="stylesheet" />
-<link href="~/Styles/jquery.ui.chatbox.css" rel="stylesheet" />
-<link href="~/Styles/style.css" rel="stylesheet" />
-<link href="~/fonts/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
-<link href="~/Scripts/jquery/jquery-ui/jquery-ui.css" rel="stylesheet" />
-<link href="~/Styles/jquery.ui.chatbox.css" rel="stylesheet" />
-<script src="~/Scripts/jquery-3.3.1.js"></script>
-<script src="~/Scripts/jquery/jquery-ui/jquery-ui.js" type="text/javascript"></script>
-<script src="~/Scripts/bootstrap.min.js"></script>
-
-<div id="chat_widnow">
-    <div id="chat_title_bar">
-        <span class="col-sm-9 text-primary"><strong>Online Users</strong></span>
-        <div id="chat_min_button"><i class="fa fa-plus-square"></i></div>
+<div id="frame">
+    <div id="sidepanel">
+        <div id="profile">
+            <div class="wrap">
+                <img id="profile-img" src="~/Content/img/@user.ImagePath" class="online" alt="" />
+                <p>@user.Name</p>
+                <i class="fa fa-chevron-down expand-button" aria-hidden="true"></i>
+                <div id="status-options">
+                    <ul>
+                        <li id="status-online" class="active">
+                            <span class="status-circle"></span>
+                            <p>Online</p>
+                        </li>
+                        <li id="status-away">
+                            <span class="status-circle"></span>
+                            <p>Away</p>
+                        </li>
+                        <li id="status-busy">
+                            <span class="status-circle"></span>
+                            <p>Busy</p>
+                        </li>
+                        <li id="status-offline">
+                            <span class="status-circle"></span>
+                            <p>Offline</p>
+                        </li>
+                    </ul>
+                </div>
+                <div id="expanded">
+                    <label for="twitter"><i class="fab fa-facebook-f pr-10" aria-hidden="true"></i></label>
+                    <input name="twitter" type="text" value="User One" />
+                    <label for="twitter"><i class="fab fa-twitter" aria-hidden="true"></i></label>
+                    <input name="twitter" type="text" value="user213" />
+                    <label for="twitter"><i class="fab fa-instagram" aria-hidden="true"></i></label>
+                    <input name="twitter" type="text" value="user.one" />
+                </div>
+            </div>
+        </div>
+        <div id="search">
+            <label for=""><i class="fa fa-search" aria-hidden="true"></i></label>
+            <input type="text" placeholder="Search contacts..." />
+        </div>
+        <div id="contacts">
+            <ul>
+                @foreach (var item in contacts)
+                {
+                    @*active class here*@
+                    <li onclick="activeContact('@item.ContactId')" class="contact" id="divContact@(item.ContactId)">
+                        <div class="wrap">
+                            <span id="spanStatus_@(item.ContactId)" class="contact-status away"></span>
+                            <img src="~/Content/img/@item.ImagePath" alt="" />
+                            <div class="meta">
+                                <p class="name">@item.Name</p>
+                                <p class="preview">@item.Description</p>
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div id="bottom-bar">
+            <button id="addcontact"><i class="fa fa-user-plus fa-fw" aria-hidden="true"></i> <span>Add contact</span></button>
+            <button id="settings"><i class="fa fa-cog fa-fw" aria-hidden="true"></i> <span>Settings</span></button>
+        </div>
     </div>
-    <div id="chat_box" style="display: none;overflow-y:auto;">
+    <div class="content">
+        <div class="contact-profile">
+            <img id="contactImgActiveChat" src="" alt="" />
+            <p id="contactNameActiveChat"></p>
+
+            <div class="social-media mr-20">
+                <span id="action_menu_btn"><i class="fas fa-ellipsis-v mr-20"></i></span>
+                <div class="action_menu">
+                    <ul>
+                        <li><i class="fas fa-user-circle"></i> View profile</li>
+                        <li><i class="fas fa-users"></i> Add to close friends</li>
+                        <li><i class="fas fa-plus"></i> Add to group</li>
+                        <li><i class="fas fa-ban"></i> Block</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="messages">
+            <ul id="ulMessages">
+            </ul>
+        </div>
+        <div class="message-input">
+            <div class="wrap">
+                <input id="chatMessage" type="text" placeholder="Write your message..." />
+                <i class="fa fa-paperclip attachment" aria-hidden="true"></i>
+                <button class="submit" type="button" onclick="sendMessage()"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+            </div>
+        </div>
     </div>
 </div>
 
-<div id="chat_div"></div>
-<input id="hdId" type="hidden" />
-<input id="hdUserName" type="hidden" />
-<input ID="hdnCurrentUserName" type="hidden" value="@userName" />
-<input ID="hdnCurrentUserID" type="hidden" value="@userId" />
+<input type="hidden" id="contactIdActiveChat" value="0" />
+<input type="hidden" id="nameActiveChat" value="" />
+<input type="hidden" id="connectionIdActiveChat" value="" />
+<input type="hidden" id="connectionIdCurrentContact" value="" />
 
-<script type="text/javascript">
-    var srp = '/';
-</script>
-<script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
-<script src="~/signalr/hubs"></script>
-<script src="~/Scripts/jquery.ui.chatbox.js"></script>
-<script src="~/Scripts/chatboxManager.min.js"></script>
+@section scripts{
+
+    <script src="~/Scripts/jquery.signalR-2.4.1.min.js"></script>
+    <script src="~/signalr/hubs"></script>
+
+    <script>
+        var chatHub = $.connection.chatHub;
+
+        $(document).ready(function() {
+            // declare a proxy to reference the hub.
+            var chatHub = $.connection.chatHub;
+            registerClientMethods(chatHub);
+
+            // start hub
+            $.connection.hub.start().done(function() {
+                registerEvents(chatHub);
+            });
+        });
+
+        function registerEvents(chatHub) {
+            var name = '@user.Name';
+            var contactId = '@user.ContactId';
+            chatHub.server.connect(name, contactId);
+        }
+
+        function registerClientMethods(chatHub) {
+            // Calls when user successfully logged in
+            chatHub.client.onConnected = function(id, userName, allUsers, messages, contactId) {
+                $('#connectionIdCurrentContact').val(id);
+                var i;
+                // add all users
+                for (i = 0; i < allUsers.length; i++) {
+                    AddUser(chatHub, allUsers[i].ContactId, allUsers[i].Name, contactId);
+                }
+                // Add Existing Messages
+                for (i = 0; i < messages.length; i++) {
+                    AddMessage(messages[i].Name, messages[i].Message);
+                }
+            }
+        }
+
+        function AddMessage(userName, message) {
+            //$('#divChatWindow').append('<div class="message"><span class="userName">' + userName + '</span>: ' + message + '</div>');
+            //var height = $('#divChatWindow')[0].scrollHeight;
+            //$('#divChatWindow').scrollTop(height);
+        }
+
+        function AddUser(chatHub, id, name, contactId) {
+            $('#spanStatus_' + id).removeClass("away");
+            $('#spanStatus_' + id).addClass("online");
+        }
+
+        // On New User Connected
+        chatHub.client.onNewUserConnected = function(id, name, contactId) {
+            AddUser(chatHub, id, name, contactId);
+        }
+
+        // On User Disconnected
+        chatHub.client.onUserDisconnected = function(id, userName) {
+            $('#spanStatus_' + id).removeClass("online");
+            $('#spanStatus_' + id).addClass("away");
+        }
+
+        chatHub.client.messageReceived = function(name, message) {
+            alert(name);
+            alert(message);
+            //AddMessage(userName, message);
+        }
+
+        chatHub.client.sendPrivateMessage = function(fromContactId, fromName, toName, message) {
+           
+            if (fromName === toName) {
+                var imgPath = "/Content/img/" + '@user.ImagePath' + "";
+                $('<li class="replies"><img src="' + imgPath + '" alt="" /><p>' + message + '</p></li>').appendTo($('.messages ul'));
+                $('.message-input input').val(null);
+                $('.contact.active .preview').html('<span>You: </span>' + message);
+                $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+            } else {
+                var imgPath = "/Content/img/" + '@user.ImagePath' + "";
+                $('<li class="sent"><img src="' + imgPath + '" alt="" /><p>' + message + '</p></li>').appendTo($('.messages ul'));
+                $('.message-input input').val(null);
+                $('.contact.active .preview').html('<span>You: </span>' + message);
+                $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+            }
+        }
+
+        function sendMessage() {
+            var toContactId = $('#contactIdActiveChat').val();
+            var message = $('.message-input input').val();
+            @*var imgPath = "/Content/img/" + '@user.ImagePath' + "";
+            $('<li class="sent"><img src="' + imgPath + '" alt="" /><p>' + message + '</p></li>').appendTo($('.messages ul'));
+            $('.message-input input').val(null);
+            $('.contact.active .preview').html('<span>You: </span>' + message);
+            $(".messages").animate({ scrollTop: $(document).height() }, "fast");*@
+            chatHub.server.sendPrivateMessage(toContactId, message);
+        }
+
+        function activeContact(id) {
+            $.ajax
+            ({
+                type: 'POST',
+                url: '@Url.Action("GetContactWithMessages", "Home")',
+                dataType: 'json',
+                data: { 'id': id },
+                success: function(data) {
+                    $('#contactNameActiveChat').html(data.data.Name);
+                    $('#contactImgActiveChat').attr("src", "/Content/img/" + data.data.ImagePath);
+                    $('#contactIdActiveChat').val(data.data.ContactId);
+
+                    $('.contact').each(function() {
+                        $(this).removeClass('active');
+                    });
+
+                    $('#divContact' + id).addClass('active');
+                    $('#ulMessages').html('');
+
+                    chatHub.server.requestLastMessage('@user.ContactId', id);
+                },
+                error: function(ex) {
+                    var r = jQuery.parseJSON(response.responseText);
+                    alert("Message: " + r.Message);
+                }
+            });
+        }
+
+        chatHub.client.GetLastMessages = function(toContactId, currentChatMessages) {
+
+            for (var i = 0; i < currentChatMessages.length; i++) {
+                var imgPath = "/Content/img/" + '@user.ImagePath' + "";
+                var message = currentChatMessages[i].Message;
+
+                if (currentChatMessages[i].ToContactId !== toContactId) {
+                    //received
+                    $('<li class="replies"><img src="' + imgPath + '" alt="" /><p>' + message + '</p></li>').appendTo($('.messages ul'));
+                    $('.message-input input').val(null);
+                    $('.contact.active .preview').html('<span>You: </span>' + message);
+                    $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+
+                } else {
+                    //sent
+                    $('<li class="sent"><img src="' + imgPath + '" alt="" /><p>' + message + '</p></li>').appendTo($('.messages ul'));
+                    $('.message-input input').val(null);
+                    $('.contact.active .preview').html('<span>You: </span>' + message);
+                    $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+                }
+            }
+        }
+
+        $(window).on('keydown',
+            function(e) {
+                if (e.which === 13) {
+                    sendMessage();
+                    return false;
+                }
+            });
+    </script>
+
+
+
+    <script>
+        $(".messages").animate({ scrollTop: $(document).height() }, "fast");
+        $("#profile-img").click(function () {
+            $("#status-options").toggleClass("active");
+        });
+
+        $(".expand-button").click(function () {
+            $("#profile").toggleClass("expanded");
+            $("#contacts").toggleClass("expanded");
+        });
+
+        $("#status-options ul li").click(function () {
+            $("#profile-img").removeClass();
+            $("#status-online").removeClass("active");
+            $("#status-away").removeClass("active");
+            $("#status-busy").removeClass("active");
+            $("#status-offline").removeClass("active");
+            $(this).addClass("active");
+
+            if ($("#status-online").hasClass("active")) {
+                $("#profile-img").addClass("online");
+            } else if ($("#status-away").hasClass("active")) {
+                $("#profile-img").addClass("away");
+            } else if ($("#status-busy").hasClass("active")) {
+                $("#profile-img").addClass("busy");
+            } else if ($("#status-offline").hasClass("active")) {
+                $("#profile-img").addClass("offline");
+            } else {
+                $("#profile-img").removeClass();
+            };
+
+            $("#status-options").removeClass("active");
+        });
+    </script>
+
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#action_menu_btn').click(function () {
+                $('.action_menu').toggle();
+            });
+        });
+    </script>
+}
+
