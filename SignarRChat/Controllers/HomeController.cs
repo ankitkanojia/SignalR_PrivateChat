@@ -1,10 +1,9 @@
-﻿using SignarRChat.Helpers;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using SignarRChat.Helpers;
 
 namespace SignarRChat.Controllers
 {
@@ -16,28 +15,31 @@ namespace SignarRChat.Controllers
         }
 
         [HttpPost]
-        public ActionResult Index(int userid, string username)
+        public ActionResult Index(string name)
         {
-            Session["UserName"] = username;
-            Session["UserId"] = userid;
+            var data = CommonFunctions.GetContacts().FirstOrDefault(s => s.Name.ToLower().Equals(name.ToLower()));
+
+            if (data == null) return View();
+
+            Session["UserDetails"] = data;
             return RedirectToAction("Chat");
-        }
-        
+
+        } 
+
         public ActionResult Chat()
         {
-            if (Session["UserName"] != null && Session["UserId"] != null)
-            {
-                return View();
-            }
-            else
-            {
+            if (Session["UserDetails"] == null)
                 return RedirectToAction("Index");
-            }
+
+            return View();
         }
 
-        public JsonResult GetConnections()
+        [HttpPost]
+        public JsonResult GetContactWithMessages(int id)
         {
-            return Json(new { StaticValues.ConnectionDetails }, JsonRequestBehavior.AllowGet );
+            var data  = CommonFunctions.GetContacts().FirstOrDefault(s => s.ContactId.Equals(id));
+
+            return Json(new {data}, JsonRequestBehavior.AllowGet);
         }
     }
 }
