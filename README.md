@@ -1,4 +1,4 @@
-# SignalR
+# SignalR For Private Chat
 
 SignalR is a software library for Microsoft ASP.NET that allows server code to send asynchronous notifications to client-side web applications. The library includes server-side and client-side JavaScript components.
 
