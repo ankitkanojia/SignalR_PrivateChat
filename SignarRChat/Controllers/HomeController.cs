@@ -41,10 +41,5 @@ namespace SignarRChat.Controllers
 
             return Json(new {data}, JsonRequestBehavior.AllowGet);
         }
-
-        public ActionResult GroupChat()
-        {
-            return View();
-        }
     }
 }

@@ -152,7 +152,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="GroupChatHub.cs" />
     <Compile Include="Helpers\CommonFunctions.cs" />
     <Compile Include="Models\ContactVm.cs" />
     <Compile Include="Models\MessageVm.cs" />
@@ -674,7 +673,6 @@
     <Content Include="Scripts\umd\popper.js.flow" />
     <Content Include="Scripts\umd\popper.js.map" />
     <Content Include="Scripts\umd\popper.min.js.map" />
-    <Content Include="Views\Home\GroupChat.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
